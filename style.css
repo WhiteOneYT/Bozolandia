@@ -1,7 +1,7 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: red;
+      background: linear-gradient(to right, Red, Orange, Yellow, Green, Blue, Indigo, Violet);
       color: #ffffff;
       display: flex;
       justify-content: center;
