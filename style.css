@@ -1,7 +1,12 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(to right, Red, Orange, Yellow, Green, Blue, Indigo, Violet);
+      background: repeating-linear-gradient(90deg in hsl longer hue, red 0 50%) 0/200%;
+  animation: r 6s linear infinite;
+
+@keyframes r {
+  to {background-position: 100%}
+}
       color: #ffffff;
       display: flex;
       justify-content: center;
