@@ -1,9 +1,22 @@
-body {
-background-color: green;
-color: white;
-text-align: center;
-}
-@media (max-width: 768px) {
-      .container {
-        flex-direction: column;
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 6vw;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 12vw;
       }
+    }
