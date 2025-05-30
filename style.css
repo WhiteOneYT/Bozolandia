@@ -1,6 +1,7 @@
 body {
 background-color: green;
 color: white;
+text-align: center;
 }
 @media (max-width: 768px) {
       .container {
