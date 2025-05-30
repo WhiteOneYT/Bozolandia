@@ -17,6 +17,6 @@
 
     @media (max-width: 600px) {
       h1 {
-        font-size: 12vw;
+        font-size: 100%;
       }
     }
