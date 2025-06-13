@@ -1,1 +1,36 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <link rel="stylesheet" href="style.css"> <title>Document</title> </head> <body> <header><h1>Panel zgłoszeniowy wydarzeń</h1></header> <section id="srodek"> <main> <form id="etap1"> <h2>Dane podstawowe</h2> <input name="Imię" id="imie" placeholder="Imię"> <input name="Nazwisko" id="nazwisko" placeholder="Nazwisko"> <button onclick="etap1()" type="button">Dalej</button> </form> <form id="etap2"> <h2>Dane kontaktowe</h2> <input name="email" placeholder="e-mail"> <input name="telefon" placeholder="numer telefonu"> <button onclick="etap2()" type="button">Dalej</button> </form> <form id="etap3"> <h2>Ustawienia logowania</h2> <input name="password" id="haslo1" placeholder="Hasło"> <input name="password_reapeat" id="haslo2" placeholder="Powtórz hasło"> <button onclick="etap3()" type="button">Zapisz</button> </form> </main> </section> <footer> <div id="film"> <video src="film.mp4" alt="film" controls loop></video> </div> <div id="tabela"> <table> <tr><th>Agenda</th></tr> <tr><td>9:00</td><td>Warsztaty</td></tr> <tr><td>11:00</td><td>Prezentacje</td></tr> </table> </div> <div id="link"><a href="https://www.targikielce.pl/przemyslowa-wiosna" alt="Link zewnętrzny do strony informacyjnej">Przemysłowa wiosna</a></div> <div id="Autor">Autor formularza: Maciej Wąsowski</div> </footer> <script src="/app.js"></script> </body> </html>
+<?php
+// Ustaw domyślny rozmiar
+if (isset($_POST['size'])) {
+    $size = intval($_POST['size']);
+} else {
+    $size = 8; // domyślny rozmiar
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Szachownica</title>
+</head>
+<body>
+<form method="post">
+    <label for="size">Wielkość szachownicy  </label>
+    <input type="number" id="size" name="size" min="1" value="<?php echo $size; ?>">
+    <input type="submit" value="Utwórz">
+</form>
+
+<?php
+// Generuj szachownicę
+for($j=0; $j<$size; $j++){
+    for($i=0; $i<$size; $i++){
+        if(($i + $j) % 2 == 0)
+            echo "⬜";
+        else
+            echo "⬛";
+    }
+    echo "<br>";
+}
+?>
+</body>
+</html>
