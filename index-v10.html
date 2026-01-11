@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Editor Pro v10 - Professional NLE</title>
+  <link rel="stylesheet" href="styles-v10.css">
+</head>
+<body>
+  <!-- Video Elements - dedicated for playback -->
+  <div id="hiddenVideoElements" style="display:none;"></div>
+  
+  <!-- Main Container -->
+  <div id="app">
+    <!-- Top Menu Bar -->
+    <div id="menuBar">
+      <div class="menuGroup">
+        <button onclick="newProject()" title="Nowy projekt">📁 New</button>
+        <button onclick="saveProject()" title="Zapisz (Ctrl+S)">💾 Save</button>
+        <button onclick="importMedia()" title="Import mediów">📥 Import</button>
+        <button onclick="openExportQueue()" title="Export queue">📤 Export Queue</button>
+      </div>
+      <div class="menuGroup">
+        <button onclick="undo()" title="Cofnij (Ctrl+Z)">↶ Undo</button>
+        <button onclick="redo()" title="Ponów (Ctrl+Y)">↷ Redo</button>
+      </div>
+      <div class="menuGroup">
+        <button onclick="openEssentialGraphics()" title="Tytuły i napisy">🎨 Graphics</button>
+        <button onclick="openLumetriPanel()" title="Zaawansowany color">🌈 Lumetri</button>
+        <button onclick="openAudioDucking()" title="Auto ducking">🎚️ Audio Duck</button>
+        <button onclick="toggleProxyMode()" title="Proxy workflow" id="proxyBtn">⚡ Proxy</button>
+      </div>
+      <div class="menuGroup">
+        <button onclick="createSequence()" title="Nowa sekwencja">➕ Sequence</button>
+        <button onclick="createAdjustmentLayer()" title="Adjustment Layer">📐 Adjustment</button>
+        <button onclick="createCompoundClip()" title="Nest clips">📦 Nest</button>
+      </div>
+      <h1 style="flex: 1; text-align: center; margin: 0;">🎬 Video Editor Pro v10</h1>
+      <div id="projectInfo" style="color: #94a3b8; font-size: 12px; margin-right: 15px;">Untitled Project</div>
+    </div>
+
+    <!-- Workspace -->
+    <div id="workspace">
+      <!-- Left Sidebar -->
+      <div id="leftSidebar" class="panel">
+        <div class="panelHeader">
+          <span>📂 Project</span>
+          <div class="panelButtons">
+            <button onclick="toggleBinView()" title="Grid/List">⊞</button>
+            <button onclick="createBinFolder()" title="Nowy folder">📁+</button>
+          </div>
+        </div>
+        <div id="binPath" style="padding: 5px; background: rgba(0,0,0,0.3); font-size: 11px; color: #64748b;">
+          / Root
+        </div>
+        <div id="projectBin" style="flex: 1; overflow-y: auto; padding: 8px;"></div>
+        <div id="binStats" style="padding: 8px; background: rgba(0,0,0,0.3); font-size: 11px; color: #94a3b8; border-top: 1px solid #334155;">
+          0 items | 0:00 duration
+        </div>
+      </div>
+
+      <!-- Center Area -->
+      <div id="centerArea">
+        <!-- Monitors Row -->
+        <div id="monitorsRow">
+          <!-- Source Monitor -->
+          <div class="monitor">
+            <div class="monitorHeader">
+              <span>📹 Source Monitor</span>
+              <div class="monitorButtons">
+                <button onclick="insertToTimeline()" title="Insert (,)">Insert</button>
+                <button onclick="overwriteToTimeline()" title="Overwrite (.)">Overwrite</button>
+              </div>
+            </div>
+            <div class="monitorCanvas">
+              <canvas id="sourceCanvas" width="640" height="360"></canvas>
+              <div id="sourceControls" class="monitorControls">
+                <button onclick="sourcePlayPause()" id="sourcePlayBtn">▶</button>
+                <button onclick="sourceStop()">⏹</button>
+                <button onclick="sourceSetIn()">[ I ]</button>
+                <button onclick="sourceSetOut()">[ O ]</button>
+                <span id="sourceTimecode">00:00:00:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Program Monitor -->
+          <div class="monitor">
+            <div class="monitorHeader">
+              <span>🎬 Program Monitor</span>
+              <div class="monitorButtons">
+                <button onclick="toggleScopes()" id="scopesBtn">Scopes</button>
+                <button onclick="toggleSafeZones()" id="safeZonesBtn">Safe Zones</button>
+              </div>
+            </div>
+            <div class="monitorCanvas">
+              <canvas id="previewCanvas" width="640" height="360"></canvas>
+              <div id="scopesOverlay" style="display: none; position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px;">
+                <canvas id="vectorScope" width="150" height="150"></canvas>
+                <canvas id="histogram" width="150" height="100" style="margin-top: 5px;"></canvas>
+              </div>
+              <div id="safeZones" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                <div class="safeZone actionSafe"></div>
+                <div class="safeZone titleSafe"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div id="timelineSection">
+          <div class="panelHeader">
+            <span>⏱️ Timeline: <select id="sequenceSelector" onchange="switchSequence()"></select></span>
+            <div class="panelButtons">
+              <button onclick="toggleSnapping()" id="snapBtn" class="active">🧲 Snap</button>
+              <button onclick="selectTool('select')" id="selectTool" class="toolBtn active" title="Selection (V)">↖</button>
+              <button onclick="selectTool('razor')" id="razorTool" class="toolBtn" title="Razor (C)">✂</button>
+              <button onclick="selectTool('rate')" id="rateTool" class="toolBtn" title="Rate Stretch (R)">⟷</button>
+              <button onclick="selectTool('slip')" id="slipTool" class="toolBtn" title="Slip (Y)">⇄</button>
+            </div>
+          </div>
+          
+          <!-- Timeline Ruler -->
+          <div id="timelineRuler" style="position: relative; height: 30px; background: #0a0a0f; border-bottom: 1px solid #334155;"></div>
+          
+          <!-- Timeline Tracks -->
+          <div id="timelineContainer" style="display: flex;">
+            <!-- Track Headers -->
+            <div id="trackHeaders" style="width: 150px; background: #0f172a; border-right: 1px solid #334155;">
+              <!-- Headers will be generated here -->
+            </div>
+            
+            <!-- Timeline Canvas -->
+            <div id="timelineWrapper" style="flex: 1; position: relative; overflow-x: auto; overflow-y: hidden;">
+              <div id="timeline" style="position: relative; min-height: 300px; background: #1e293b;">
+                <!-- Clips will be rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Controls -->
+          <div id="timelineControls" style="padding: 8px; background: #0f172a; border-top: 1px solid #334155; display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; gap: 8px;">
+            <button onclick="gotoStart()" title="Go to start (Home)">⏮ Start</button>
+            <button onclick="skipFrames(-10)" title="-10 frames">⏪</button>
+            <button onclick="skipFrames(-1)" title="-1 frame">◀</button>
+            <button id="playBtn" title="Play/Pause (Space)">▶ Play</button>
+            <button onclick="stopPlayback()" title="Stop">⏹ Stop</button>
+            <button onclick="skipFrames(1)" title="+1 frame">▶</button>
+            <button onclick="skipFrames(10)" title="+10 frames">⏩</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-left: 20px;">
+            <button onclick="setInPoint()" title="Set In Point (I)" style="background: #10b981;">[ I ]</button>
+            <button onclick="setOutPoint()" title="Set Out Point (O)" style="background: #ef4444;">[ O ]</button>
+            <button onclick="clearInOut()" title="Clear In/Out">Clear I/O</button>
+            </div>
+            
+            <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+              <span id="currentTimecode" style="font-family: 'Courier New'; color: #94a3b8; font-size: 14px; min-width: 100px;">00:00:00:00</span>
+              <input type="range" id="zoomSlider" min="10" max="200" value="100" oninput="zoomTimeline(this.value)" 
+                     style="width: 150px;" title="Timeline zoom">
+              <span style="color: #64748b; font-size: 11px;" id="zoomLevel">100%</span>
+            </div>
+            
+            <select id="speedSelect" onchange="setPlaybackSpeed(parseFloat(this.value))" 
+                    style="background: #1e293b; color: #fff; border: 1px solid #334155; padding: 4px; border-radius: 4px;">
+              <option value="0.25">0.25x</option>
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x</option>
+            </select>
+            
+            <div id="frameDisplay" style="background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; color: #94a3b8; font-size: 11px; font-family: 'Courier New';">
+              Frame: 0 / 0
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div id="rightSidebar" class="panel">
+        <div class="panelTabs">
+          <button class="tabBtn active" onclick="switchTab('effects')">Effects</button>
+          <button class="tabBtn" onclick="switchTab('graphics')">Graphics</button>
+          <button class="tabBtn" onclick="switchTab('audio')">Audio</button>
+          <button class="tabBtn" onclick="switchTab('color')">Color</button>
+        </div>
+        
+        <div id="effectsTab" class="tabContent active">
+          <div class="panelHeader"><span>🎨 Video Effects</span></div>
+          <div id="videoEffects" style="padding: 8px;">
+            <div class="effectCategory">Transitions</div>
+            <button class="effectBtn" onclick="applyEffect('crossDissolve')">Cross Dissolve</button>
+            <button class="effectBtn" onclick="applyEffect('dip')">Dip to Black</button>
+            <div class="effectCategory">Transform</div>
+            <button class="effectBtn" onclick="applyEffect('transform')">Transform</button>
+            <button class="effectBtn" onclick="applyEffect('crop')">Crop</button>
+            <div class="effectCategory">Time</div>
+            <button class="effectBtn" onclick="applyEffect('speedRamp')">Speed Ramp</button>
+            <button class="effectBtn" onclick="applyEffect('timeRemapping')">Time Remap</button>
+          </div>
+        </div>
+        
+        <div id="graphicsTab" class="tabContent">
+          <div class="panelHeader"><span>✏️ Essential Graphics</span></div>
+          <div style="padding: 8px;">
+            <button onclick="addTextLayer('title')" style="width: 100%; margin-bottom: 5px;">➕ Title</button>
+            <button onclick="addTextLayer('lower3rd')" style="width: 100%; margin-bottom: 5px;">➕ Lower Third</button>
+            <button onclick="addTextLayer('endscreen')" style="width: 100%;">➕ End Screen</button>
+          </div>
+        </div>
+        
+        <div id="audioTab" class="tabContent">
+          <div class="panelHeader"><span>🎚️ Audio Effects</span></div>
+          <div style="padding: 8px;">
+            <button class="effectBtn" onclick="applyAudioEffect('eq')">EQ</button>
+            <button class="effectBtn" onclick="applyAudioEffect('compressor')">Compressor</button>
+            <button class="effectBtn" onclick="applyAudioEffect('reverb')">Reverb</button>
+            <button class="effectBtn" onclick="applyAudioEffect('normalize')">Normalize</button>
+          </div>
+        </div>
+        
+        <div id="colorTab" class="tabContent">
+          <div class="panelHeader"><span>🌈 Lumetri Color</span></div>
+          <div id="colorControls" style="padding: 8px; max-height: 600px; overflow-y: auto;">
+            <!-- Color controls will be populated here -->
+          </div>
+        </div>
+        
+        <div id="propertiesPanel" style="border-top: 1px solid #334155; padding: 8px;">
+          <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Effect Controls</div>
+          <div id="effectControlsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals will be created dynamically -->
+
+  <script src="app-v10-core.js"></script>
+  <script src="app-v10-tools.js"></script>
+  <script src="app-v10-graphics.js"></script>
+  <script src="app-v10-advanced.js"></script>
+  
+  <script>
+    // FORCE OVERRIDE - Emergency fix for Play and Set In Point
+    (function() {
+      console.log('=== EMERGENCY OVERRIDE LOADING ===');
+      
+      // Wait for DOM
+      function setupButtons() {
+        console.log('Setting up emergency button handlers...');
+        
+        const playBtn = document.getElementById('playBtn');
+        
+        if (playBtn) {
+          // Remove all existing listeners
+          const newPlayBtn = playBtn.cloneNode(true);
+          playBtn.parentNode.replaceChild(newPlayBtn, playBtn);
+          
+          newPlayBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('EMERGENCY PLAY CLICKED');
+            
+            if (!window.editorState) {
+              alert('editorState not loaded!');
+              return;
+            }
+            
+            window.editorState.isPlaying = !window.editorState.isPlaying;
+            
+            if (window.editorState.isPlaying) {
+              newPlayBtn.textContent = '⏸ Pause';
+              console.log('Starting playback...');
+              
+              // Call startPlayback if exists
+              if (typeof window.startPlayback === 'function') {
+                window.startPlayback();
+              } else {
+                // Emergency playback
+                const fps = window.editorState.frameRate || 30;
+                window.emergencyPlayInterval = setInterval(() => {
+                  window.editorState.currentTime += (1 / fps);
+                  if (window.editorState.currentTime >= window.editorState.duration) {
+                    window.editorState.currentTime = 0;
+                  }
+                  if (typeof window.updateTimecode === 'function') window.updateTimecode();
+                  if (typeof window.updatePlayheadOnly === 'function') window.updatePlayheadOnly();
+                  if (typeof window.updatePreview === 'function') window.updatePreview();
+                }, 1000/fps);
+              }
+            } else {
+              newPlayBtn.textContent = '▶ Play';
+              console.log('Stopping playback...');
+              
+              if (typeof window.stopPlayback === 'function') {
+                window.stopPlayback();
+              } else {
+                if (window.emergencyPlayInterval) {
+                  clearInterval(window.emergencyPlayInterval);
+                  window.emergencyPlayInterval = null;
+                }
+              }
+            }
+          });
+          console.log('✅ Play button emergency handler attached');
+        } else {
+          console.error('❌ playBtn not found!');
+        }
+      }
+      
+      // Setup immediately if DOM ready, otherwise wait
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupButtons);
+      } else {
+        setTimeout(setupButtons, 100); // Give time for other scripts
+      }
+    })();
+  </script>
+</body>
+</html>
