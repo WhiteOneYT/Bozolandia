@@ -1,28 +1,858 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kochać dziekana, dziekan robi mi legitymacje</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Wyceny Druku 3D – Anycubic Kobra S1 + ACE Pro</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --purple: #a855f7;
+      --yellow: #eab308;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .preset-btn {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover,
+    .preset-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Podsumowanie */
+    .sticky-panel {
+      position: sticky;
+      top: 20px;
+    }
+
+    .price-Hero {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(56, 189, 248, 0.1));
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .price-Hero .label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-Hero .main-price {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 4px 0;
+    }
+
+    .price-Hero .sub-prices {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .breakdown-list {
+      list-style: none;
+      margin-bottom: 20px;
+    }
+
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.2);
+      font-size: 0.92rem;
+    }
+
+    .breakdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .chart-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 18px 0;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 12px;
+    }
+
+    .donut {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .donut::after {
+      content: "";
+      width: 74px;
+      height: 74px;
+      background: var(--card);
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .donut-center {
+      position: relative;
+      z-index: 2;
+      font-size: 0.78rem;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .btn-outline {
+      grid-column: span 2;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    .toast {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--green);
+      color: #86efac;
+      font-size: 0.82rem;
+      text-align: center;
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        padding: 0;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: none;
+        color: #000;
+      }
+      .preset-btn, .actions {
+        display: none !important;
+      }
+      input, select {
+        border: 1px solid #999;
+        background: #fff;
+        color: #000;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>Szacunek do policji tak zostałem wychowany</h1>
-    <style>
-        h1 {
-            color: pink;
-        }
-        body { background-color:black;}
-        p { color:white;}
-    </style>
-    <h1>Dziekan najlepszy własnoręcznie robi nam legitymacje</h1>
-    <ul>
-        <li>
-            <p>brak zniżki 51%</p>
-        </li>
-        <li>
-            <p>brak legitymacji, a jest 14.10</p>
-        </li>
-        <img src="images (11).jpeg" onmouseover="this.style.display='none'">
-    </ul>
+
+<div class="container">
+  <header>
+    <div>
+      <div class="brand">
+        <span class="badge">Anycubic Kobra S1 + ACE Pro</span>
+        <h1>Kalkulator Wyceny Druku 3D</h1>
+      </div>
+      <p class="subtitle">Uwzględnia filament, odpad multicolor (Purge/Wieża), aktywne suszenie ACE Pro, prąd, amortyzację części oraz robociznę.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEWA KOLUMNA: PARAMETRY -->
+    <div>
+      <!-- 1. ZLECENIE I MATERIAŁ -->
+      <div class="card">
+        <div class="card-title">
+          <span>1. Projekt i Filament</span>
+          <span style="font-size:0.8rem; color:var(--muted);">Presety materiału</span>
+        </div>
+
+        <div class="presets" id="filamentPresets">
+          <button type="button" class="preset-btn active" onclick="setFilamentPreset('PLA / HS PLA', 75, this)">PLA / HS PLA (75 zł/kg)</button>
+          <button type="button" class="preset-btn" onclick="setFilamentPreset('PETG', 85, this)">PETG (85 zł/kg)</button>
+          <button type="button" class="preset-btn" onclick="setFilamentPreset('ASA / ABS', 110, this)">ASA / ABS (110 zł/kg)</button>
+          <button type="button" class="preset-btn" onclick="setFilamentPreset('TPU 95A', 130, this)">TPU (130 zł/kg)</button>
+          <button type="button" class="preset-btn" onclick="setFilamentPreset('PA-CF / PET-CF', 240, this)">PA-CF (240 zł/kg)</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nazwa projektu / detalu</label>
+            <input type="text" id="projectName" value="Wydruk wielokolorowy Kobra S1" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Liczba sztuk w zleceniu</label>
+            <input type="number" id="quantity" value="1" min="1" step="1" oninput="calculate()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cena szpuli (PLN)</label>
+            <input type="number" id="spoolPrice" value="75" min="1" step="1" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Waga szpuli netto (g)</label>
+            <input type="number" id="spoolWeight" value="1000" min="100" step="50" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Waga 1 modelu z podporami (g)</label>
+            <input type="number" id="modelWeight" value="85" min="0" step="0.5" oninput="calculate()" />
+            <span class="hint">Waga samego modelu (bez odpadu ACE)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. ODPAD MULTICOLOR ACE PRO -->
+      <div class="card">
+        <div class="card-title">
+          <span>2. Moduł ACE Pro – Odpad Multicolor (Purge + Wieża)</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Odpad ze zmian koloru i wieży (g)</label>
+            <input type="number" id="purgeWeight" value="25" min="0" step="1" oninput="calculate()" />
+            <span class="hint">Odczytaj "Flushed / Wipe tower" w Anycubic Slicer Next (0 dla 1 koloru)</span>
+          </div>
+          <div class="form-group">
+            <label>Rozliczenie odpadu przy wielu sztukach</label>
+            <select id="purgeMode" onchange="calculate()">
+              <option value="batch">Raz na cały stół / serię (wspólna wieża i zrzuty)</option>
+              <option value="per_item">Osobno dla każdej sztuki (druk pojedynczo)</option>
+            </select>
+            <span class="hint">Drukując kilka sztuk naraz na stole Kobry S1, odpad dzieli się na cały rzut</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. CZAS DRUKU, PRĄD I SUSZENIE ACE PRO -->
+      <div class="card">
+        <div class="card-title">
+          <span>3. Czas pracy, Prąd i Aktywne Suszenie ACE Pro</span>
+        </div>
+
+        <div class="presets">
+          <button type="button" class="preset-btn" onclick="setPowerPreset(160, this)">Tylko Kobra S1 – bez grzania ACE (160 W)</button>
+          <button type="button" class="preset-btn active" onclick="setPowerPreset(300, this)">Kobra S1 + Aktywne Suszenie ACE (300 W)</button>
+          <button type="button" class="preset-btn" onclick="setPowerPreset(360, this)">Komora High-Temp ASA/ABS + ACE (360 W)</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Czas druku 1 sztuki (godz.)</label>
+            <input type="number" id="printHours" value="3" min="0" step="1" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Czas druku 1 sztuki (min.)</label>
+            <input type="number" id="printMinutes" value="30" min="0" max="59" step="1" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Średni pobór mocy (W)</label>
+            <input type="number" id="powerWatts" value="300" min="10" step="10" oninput="calculate()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wstępne suszenie przed drukiem (h)</label>
+            <input type="number" id="preDryHours" value="0" min="0" step="0.5" oninput="calculate()" />
+            <span class="hint">Samo suszenie w ACE Pro (~140 W) przed startem wydruku</span>
+          </div>
+          <div class="form-group">
+            <label>Cena prądu (PLN / kWh)</label>
+            <input type="number" id="kwhPrice" value="1.15" min="0.1" step="0.05" oninput="calculate()" />
+            <span class="hint">Z opłatami dystrybucyjnymi</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. AMORTYZACJA I ZUŻYCIE CZĘŚCI -->
+      <div class="card">
+        <div class="card-title">
+          <span>4. Amortyzacja Zestawu i Zużycie Części</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Wartość Kobra S1 Combo (PLN)</label>
+            <input type="number" id="printerCost" value="2100" min="0" step="50" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Czas zwrotu / żywotność (h)</label>
+            <input type="number" id="printerLifespan" value="3000" min="100" step="100" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Części eksploatacyjne (PLN / h)</label>
+            <input type="number" id="maintenancePerHour" value="0.50" min="0" step="0.05" oninput="calculate()" />
+            <span class="hint">Dysze S1, nożyk filamentu, wycieraczki, rurki PTFE w buforze ACE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. ROBOCIZNA, RYZYKO I MARŻA -->
+      <div class="card">
+        <div class="card-title">
+          <span>5. Robocizna, Ryzyko i Marża</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Przygotowanie w Slicerze (min)</label>
+            <input type="number" id="prepMinutes" value="10" min="0" step="1" oninput="calculate()" />
+            <span class="hint">Malowanie kolorów, ustawienie (liczone raz na zlecenie)</span>
+          </div>
+          <div class="form-group">
+            <label>Post-processing 1 szt. (min)</label>
+            <input type="number" id="postMinutes" value="5" min="0" step="1" oninput="calculate()" />
+            <span class="hint">Odrywanie podpór, obróbka (mnożone przez liczbę sztuk)</span>
+          </div>
+          <div class="form-group">
+            <label>Stawka za Twoją pracę (PLN / h)</label>
+            <input type="number" id="laborRate" value="60" min="0" step="5" oninput="calculate()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ryzyko nieudanego druku (%)</label>
+            <input type="number" id="failureRate" value="8" min="0" max="100" step="1" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Narzut / Marża zysku (%)</label>
+            <input type="number" id="marginPercent" value="50" min="0" step="5" oninput="calculate()" />
+          </div>
+          <div class="form-group">
+            <label>Stawka VAT (%)</label>
+            <select id="vatRate" onchange="calculate()">
+              <option value="23" selected>23% (Standard)</option>
+              <option value="8">8%</option>
+              <option value="0">0% / Zwolniony (Rachunek)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Opakowanie / Materiały dodatkowe na całość (PLN)</label>
+            <input type="number" id="packagingCost" value="0" min="0" step="1" oninput="calculate()" />
+            <span class="hint">Karton, folia bąbelkowa, inserty gwintowane (heat-set), klej itp.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRAWA KOLUMNA: PODSUMOWANIE -->
+    <div class="sticky-panel">
+      <div class="card">
+        <div class="card-title">
+          <span>Podsumowanie Wyceny</span>
+          <span id="totalTimeBadge" style="font-size:0.82rem; color:var(--blue);">Czas: 3h 30m</span>
+        </div>
+
+        <div class="price-Hero">
+          <div class="label">Cena Końcowa Brutto (Całe Zlecenie)</div>
+          <div class="main-price" id="finalGrossTotal">0.00 PLN</div>
+          <div class="sub-prices">
+            <span>Netto: <strong id="finalNetTotal">0.00 PLN</strong></span>
+            <span>Za 1 szt. brutto: <strong id="perUnitGross">0.00 PLN</strong></span>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <div class="donut" id="costDonut">
+            <div class="donut-center">
+              Struktura<br><strong style="color:#fff;">Netto</strong>
+            </div>
+          </div>
+          <div style="font-size:0.8rem; color:var(--muted); display:flex; flex-direction:column; gap:5px;">
+            <div><span class="dot" style="background:var(--accent);"></span>Filament + Odpad ACE</div>
+            <div><span class="dot" style="background:var(--yellow);"></span>Prąd + Suszenie ACE</div>
+            <div><span class="dot" style="background:var(--blue);"></span>Amortyzacja i Części S1</div>
+            <div><span class="dot" style="background:var(--purple);"></span>Robocizna i Dodatki</div>
+            <div><span class="dot" style="background:var(--green);"></span>Czysty Zysk (Marża)</div>
+          </div>
+        </div>
+
+        <ul class="breakdown-list">
+          <li class="breakdown-item">
+            <span><span class="dot" style="background:var(--accent);"></span>Koszt modelu (<span id="outModelGrams">0</span> g)</span>
+            <strong id="outModelCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span><span class="dot" style="background:var(--accent);"></span>Odpad ACE Pro – Purge/Wieża (<span id="outPurgeGrams">0</span> g)</span>
+            <strong id="outPurgeCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span><span class="dot" style="background:var(--yellow);"></span>Energia elektryczna + suszenie (<span id="outKwh">0</span> kWh)</span>
+            <strong id="outEnergyCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span><span class="dot" style="background:var(--blue);"></span>Amortyzacja Kobra S1 + zużycie części</span>
+            <strong id="outMachineCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span><span class="dot" style="background:var(--purple);"></span>Robocizna (Slicer + obróbka) + dodatki</span>
+            <strong id="outLaborCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span>Bufor ryzyka nieudanego wydruku</span>
+            <strong id="outRiskCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item" style="border-top: 1px solid var(--card-border); padding-top:12px;">
+            <span style="color:var(--muted);">Koszt własny wytworzenia (bez marży):</span>
+            <strong id="outBaseCost">0.00 PLN</strong>
+          </li>
+          <li class="breakdown-item">
+            <span style="color:var(--green); font-weight:600;"><span class="dot" style="background:var(--green);"></span>Czysty zysk (Marża + Robocizna):</span>
+            <strong id="outTotalProfit" style="color:var(--green);">0.00 PLN</strong>
+          </li>
+        </ul>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" onclick="copyClientQuote()">Kopiuj ofertę dla klienta</button>
+          <button type="button" class="btn btn-secondary" onclick="copyFullReport()">Kopiuj pełny kosztorys</button>
+          <button type="button" class="btn btn-outline" onclick="window.print()">Drukuj / Zapisz jako PDF</button>
+        </div>
+        <div id="toast" class="toast">Skopiowano do schowka!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentMaterialName = 'PLA / HS PLA';
+
+  function setFilamentPreset(name, price, btn) {
+    currentMaterialName = name;
+    document.getElementById('spoolPrice').value = price;
+    document.querySelectorAll('#filamentPresets .preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    calculate();
+  }
+
+  function setPowerPreset(watts, btn) {
+    document.getElementById('powerWatts').value = watts;
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    calculate();
+  }
+
+  function getNum(id) {
+    const val = parseFloat(document.getElementById(id).value);
+    return isNaN(val) || val < 0 ? 0 : val;
+  }
+
+  function calculate() {
+    const qty = Math.max(1, Math.round(getNum('quantity')));
+    const spoolPrice = getNum('spoolPrice');
+    const spoolWeight = Math.max(1, getNum('spoolWeight'));
+    const modelWeight = getNum('modelWeight');
+    const purgeWeight = getNum('purgeWeight');
+    const purgeMode = document.getElementById('purgeMode').value;
+
+    const printHours = getNum('printHours');
+    const printMinutes = getNum('printMinutes');
+    const powerWatts = getNum('powerWatts');
+    const preDryHours = getNum('preDryHours');
+    const kwhPrice = getNum('kwhPrice');
+
+    const printerCost = getNum('printerCost');
+    const printerLifespan = Math.max(1, getNum('printerLifespan'));
+    const maintenancePerHour = getNum('maintenancePerHour');
+
+    const prepMinutes = getNum('prepMinutes');
+    const postMinutes = getNum('postMinutes');
+    const laborRate = getNum('laborRate');
+
+    const failureRate = getNum('failureRate');
+    const marginPercent = getNum('marginPercent');
+    const vatRate = getNum('vatRate');
+    const packagingCost = getNum('packagingCost');
+
+    // 1. Koszt filamentu (model + odpad ACE)
+    const pricePerGram = spoolPrice / spoolWeight;
+    const totalModelGrams = modelWeight * qty;
+    const totalPurgeGrams = (purgeMode === 'batch') ? purgeWeight : (purgeWeight * qty);
+
+    const modelFilamentCost = totalModelGrams * pricePerGram;
+    const purgeFilamentCost = totalPurgeGrams * pricePerGram;
+    const totalFilamentCost = modelFilamentCost + purgeFilamentCost;
+
+    // 2. Czas druku i energia
+    const singlePrintTimeHours = printHours + (printMinutes / 60);
+    const totalPrintTimeHours = singlePrintTimeHours * qty;
+
+    const printKwh = (powerWatts / 1000) * totalPrintTimeHours;
+    const preDryKwh = (140 / 1000) * preDryHours; // ACE Pro suszenie wstępne ~140W
+    const totalKwh = printKwh + preDryKwh;
+    const energyCost = totalKwh * kwhPrice;
+
+    // 3. Amortyzacja i części
+    const depreciationPerHour = printerCost / printerLifespan;
+    const machineCost = (depreciationPerHour + maintenancePerHour) * totalPrintTimeHours;
+
+    // 4. Robocizna + opakowanie
+    const totalLaborHours = (prepMinutes + (postMinutes * qty)) / 60;
+    const laborCost = totalLaborHours * laborRate;
+    const laborAndExtras = laborCost + packagingCost;
+
+    // 5. Ryzyko (liczone od kosztów maszynowo-materiałowych)
+    const technicalCost = totalFilamentCost + energyCost + machineCost;
+    const riskCost = technicalCost * (failureRate / 100);
+
+    // 6. Suma kosztów własnych i marża
+    const baseNetCost = technicalCost + riskCost + laborAndExtras;
+    const marginValue = baseNetCost * (marginPercent / 100);
+    const finalNet = baseNetCost + marginValue;
+    const finalGross = finalNet * (1 + vatRate / 100);
+    const unitGross = finalGross / qty;
+
+    // Czysty zarobek (Marża + Twoja robocizna)
+    const totalProfit = marginValue + laborCost;
+
+    // Aktualizacja DOM
+    const totalH = Math.floor(totalPrintTimeHours);
+    const totalM = Math.round((totalPrintTimeHours - totalH) * 60);
+    document.getElementById('totalTimeBadge').textContent = `Czas druku: ${totalH}h ${totalM}m`;
+
+    document.getElementById('outModelGrams').textContent = totalModelGrams.toFixed(1);
+    document.getElementById('outPurgeGrams').textContent = totalPurgeGrams.toFixed(1);
+    document.getElementById('outKwh').textContent = totalKwh.toFixed(2);
+
+    document.getElementById('outModelCost').textContent = `${modelFilamentCost.toFixed(2)} PLN`;
+    document.getElementById('outPurgeCost').textContent = `${purgeFilamentCost.toFixed(2)} PLN`;
+    document.getElementById('outEnergyCost').textContent = `${energyCost.toFixed(2)} PLN`;
+    document.getElementById('outMachineCost').textContent = `${machineCost.toFixed(2)} PLN`;
+    document.getElementById('outLaborCost').textContent = `${laborAndExtras.toFixed(2)} PLN`;
+    document.getElementById('outRiskCost').textContent = `${riskCost.toFixed(2)} PLN`;
+
+    document.getElementById('outBaseCost').textContent = `${baseNetCost.toFixed(2)} PLN`;
+    document.getElementById('outTotalProfit').textContent = `${totalProfit.toFixed(2)} PLN`;
+
+    document.getElementById('finalNetTotal').textContent = `${finalNet.toFixed(2)} PLN`;
+    document.getElementById('finalGrossTotal').textContent = `${finalGross.toFixed(2)} PLN`;
+    document.getElementById('perUnitGross').textContent = `${unitGross.toFixed(2)} PLN`;
+
+    // Wykres kołowy
+    const totalForChart = Math.max(0.01, finalNet);
+    const pFil = ((totalFilamentCost + riskCost) / totalForChart) * 100;
+    const pEne = (energyCost / totalForChart) * 100;
+    const pMac = (machineCost / totalForChart) * 100;
+    const pLab = (laborAndExtras / totalForChart) * 100;
+
+    const c1 = pFil;
+    const c2 = c1 + pEne;
+    const c3 = c2 + pMac;
+    const c4 = c3 + pLab;
+
+    document.getElementById('costDonut').style.background = `conic-gradient(
+      var(--accent) 0% ${c1}%,
+      var(--yellow) ${c1}% ${c2}%,
+      var(--blue) ${c2}% ${c3}%,
+      var(--purple) ${c3}% ${c4}%,
+      var(--green) ${c4}% 100%
+    )`;
+
+    window.latestCalc = {
+      projectName: document.getElementById('projectName').value || 'Wydruk 3D',
+      qty,
+      material: currentMaterialName,
+      totalH,
+      totalM,
+      totalModelGrams,
+      totalPurgeGrams,
+      totalFilamentCost,
+      energyCost,
+      machineCost,
+      laborAndExtras,
+      riskCost,
+      baseNetCost,
+      marginValue,
+      finalNet,
+      finalGross,
+      unitGross,
+      vatRate
+    };
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2600);
+  }
+
+  function copyClientQuote() {
+    const c = window.latestCalc;
+    const text = [
+      `=== WYCENA DRUKU 3D ===`,
+      `Projekt: ${c.projectName}`,
+      `Technologia: FDM (Anycubic Kobra S1 + ACE Pro)`,
+      `Materiał: ${c.material}`,
+      `Ilość: ${c.qty} szt.`,
+      `Szacowany czas realizacji druku: ${c.totalH}h ${c.totalM}m`,
+      `----------------------------------------`,
+      `Cena za 1 szt. (brutto): ${c.unitGross.toFixed(2)} PLN`,
+      `Kwota łączna NETTO: ${c.finalNet.toFixed(2)} PLN`,
+      `Kwota łączna BRUTTO (VAT ${c.vatRate}%): ${c.finalGross.toFixed(2)} PLN`
+    ].join('\n');
+
+    navigator.clipboard.writeText(text);
+    showToast('Skopiowano ofertę dla klienta do schowka!');
+  }
+
+  function copyFullReport() {
+    const c = window.latestCalc;
+    const text = [
+      `=== WEWNĘTRZNY RAPORT KOSZTOWY (Kobra S1 + ACE Pro) ===`,
+      `Projekt: ${c.projectName} (${c.qty} szt.) | Materiał: ${c.material}`,
+      `- Filament model (${c.totalModelGrams.toFixed(1)}g) + odpad ACE (${c.totalPurgeGrams.toFixed(1)}g): ${c.totalFilamentCost.toFixed(2)} PLN`,
+      `- Energia elektryczna i suszenie ACE: ${c.energyCost.toFixed(2)} PLN`,
+      `- Amortyzacja i części Kobra S1 Combo: ${c.machineCost.toFixed(2)} PLN`,
+      `- Robocizna i opakowanie: ${c.laborAndExtras.toFixed(2)} PLN`,
+      `- Bufor ryzyka: ${c.riskCost.toFixed(2)} PLN`,
+      `----------------------------------------`,
+      `Koszt własny: ${c.baseNetCost.toFixed(2)} PLN`,
+      `Narzut marży: ${c.marginValue.toFixed(2)} PLN`,
+      `Cena NETTO: ${c.finalNet.toFixed(2)} PLN`,
+      `Cena BRUTTO: ${c.finalGross.toFixed(2)} PLN (${c.unitGross.toFixed(2)} PLN / szt.)`
+    ].join('\n');
+
+    navigator.clipboard.writeText(text);
+    showToast('Skopiowano pełny raport techniczny!');
+  }
+
+  // Inicjalne przeliczenie po załadowaniu
+  window.addEventListener('DOMContentLoaded', calculate);
+</script>
+
 </body>
 </html>
